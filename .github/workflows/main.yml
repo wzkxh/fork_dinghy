@@ -18,16 +18,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential python3 curl tar
 
-      - name: Download JieLi Toolchain
+      - name: Setup JieLi Toolchain
         run: |
-          mkdir -p ~/.jieli
-          # Downloads the official JieLi Linux pi32 toolchain
-          curl -sSL https://pkgman.jieliapp.com/doc/pi32/pi32-linux-x86_64-latest.tar.gz | tar -xz -C ~/.jieli || true
-          echo "JIELI_TOOLCHAIN=$HOME/.jieli" >> $GITHUB_ENV
+          mkdir -p $HOME/jieli-toolchain
+          curl -sSL https://raw.githubusercontent.com/zvenson/dinghy/main/tools/setup_toolchain.sh | bash || true
+          echo "$HOME/jieli-toolchain/bin" >> $GITHUB_PATH
 
-      - name: Run Build
+      - name: Build Firmware
         run: |
-          make
+          make -j$(nproc)
 
       - name: Upload .fwsc Artifact
         uses: actions/upload-artifact@v4
