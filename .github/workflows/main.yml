@@ -1,28 +1,29 @@
-name: Build Firmware
+name: Build FM-1 Firmware
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Uses the community JieLi/Pi32 cross-compiler container
+    container:
+      image: ghcr.io/aroum/fm1-toolchain:latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Build Environment & Compile
+      - name: Compile Firmware
         run: |
           make
 
-      - name: Upload .fwsc Binary Artifact
+      - name: Upload .fwsc Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compiled-firmware
+          name: custom-fm1-firmware
           path: |
             *.fwsc
             build/*.fwsc
