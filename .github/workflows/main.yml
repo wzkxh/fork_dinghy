@@ -8,22 +8,31 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Uses the community JieLi/Pi32 cross-compiler container
-    container:
-      image: ghcr.io/aroum/fm1-toolchain:latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compile Firmware
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3 curl tar
+
+      - name: Download JieLi Toolchain
+        run: |
+          mkdir -p ~/.jieli
+          # Downloads the official JieLi Linux pi32 toolchain
+          curl -sSL https://pkgman.jieliapp.com/doc/pi32/pi32-linux-x86_64-latest.tar.gz | tar -xz -C ~/.jieli || true
+          echo "JIELI_TOOLCHAIN=$HOME/.jieli" >> $GITHUB_ENV
+
+      - name: Run Build
         run: |
           make
 
       - name: Upload .fwsc Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: custom-fm1-firmware
+          name: compiled-firmware
           path: |
             *.fwsc
             build/*.fwsc
